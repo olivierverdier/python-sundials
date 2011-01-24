@@ -1,0 +1,8 @@
+include README.txt
+include COPYING.txt
+include setup.py
+include MANIFEST.in
+include sundials/test_*
+include sundials/*.pxi
+include sundials/*.pxd
+include sundials/Makefile_embedded

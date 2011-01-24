@@ -1,0 +1,19 @@
+# Makefile for creating our standalone Cython program
+PYVERSION=$(shell python -c "import sys; print(sys.version[0]+sys.version[2])")
+PYPREFIX=$(shell python -c "import sys; print(sys.prefix)")
+INCLUDES=-I$(PYPREFIX)/include/
+
+test_embedded: test_embedded.o
+	gcc -o $@ $^ -lpython$(PYVERSION) -L$(PYPREFIX)/libs -L$(PYPREFIX)/PCbuild
+
+test_embedded.o: test_embedded.c
+	gcc -c $^ -mno-cygwin -mdll -O -Wall $(INCLUDES)
+
+test_embedded.c: test_embedded.pyx
+	@python -m cython test_embedded.pyx --embed -I "..\.."
+
+all: test_embedded
+
+clean:
+	@echo Cleaning test_embedded
+	@rm -f test_embedded.exe test_embedded.c

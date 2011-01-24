@@ -1,0 +1,32 @@
+Metadata-Version: 1.0
+Name: sundials
+Version: 0.1
+Summary: Sundials solver library wrapper
+Home-page: http://code.google.com/p/python-sundials/
+Author: Runar Tenfjord
+Author-email: runar.tenfjord@google.com
+License: BSD
+Download-URL: http://pypi.python.org/pypi/python-sundials/
+Description: **python-sundials** is a Cython wrapper for the Sundials solver suite.
+        The wrapper is based on code posten on the cython-dev mailing list by
+        Mr. Jon Olav Vik.
+        
+        **Highlights**
+        
+         * CVODE - Solver for stiff and nonstiff ordinary differential equation
+         * IDA - Solver for the solution of differential-algebraic equation (DAE) systems
+         * KINSOL - solver for nonlinear algebraic systems based on Newton-Krylov solver technology
+        
+        The CVODE and IDA solvers support root finding and the solver throws an exception
+        on finding a root.
+        
+        There is also an example of implementing the explicit equation in Cython for speed.
+        
+Platform: any
+Classifier: Environment :: Console
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Mathematics

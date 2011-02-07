@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #cython: boundscheck=False
 import os
 import time

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from libc.stdlib cimport malloc, free
 
 from SundialsLib cimport *

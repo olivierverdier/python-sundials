@@ -222,8 +222,6 @@ cdef int cv_jac(int Neq, realtype t, N_Vector yv, N_Vector fy, DlsMat Jac,
                 col_i[j] = buf[j,i]
                 
     return 0
-    
-cdef class CVode
 
 cdef class CVodeIterator:
     """

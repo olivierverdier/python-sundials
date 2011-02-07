@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 ctypedef double realtype
 
 cdef class N_Vector_Serial:
     cdef void *thisptr
+    cdef Py_ssize_t __shape[1]
     
     cdef int getsize(N_Vector_Serial self)
     cdef double *getdata(N_Vector_Serial self)

@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: sundials
-Version: 0.1
+Version: 0.2
 Summary: Sundials solver library wrapper
 Home-page: http://code.google.com/p/python-sundials/
 Author: Runar Tenfjord

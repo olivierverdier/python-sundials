@@ -1,39 +1,14 @@
-#!/usr/bin/env python 
 # -*- coding: utf-8 -*-
-
-# Copyright (C) 2010 Modelon AB
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, version 3 of the License.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 """
-Cython Wrapper for interfacing Python with CVode and IDA (Sundials Version 2.4.0)
-Claus Fuhrer,        Lund University        October 2009
-Christian Andersson, Lund University        Februari 2010
-
-see also Jon Olav Vik: 
+See also Jon Olav Vik: 
 http://codespeak.net/pipermail/cython-dev/2009-June/005947.html
 
 """
 
-# ==============================================
-#  external definitions from Sundial headers
-# ==============================================
-
 cdef extern from "sundials/sundials_types.h":
     ctypedef double realtype
-    ctypedef bint booleantype # should be bool instead of bint, but there is a bug in Cython
-    # This bug is fixed in http://trac.cython.org/cython_trac/ticket/227
-
+    ctypedef bint booleantype
+    
 cdef extern from "sundials/sundials_nvector.h":
     cdef struct _generic_N_Vector:
         void* content

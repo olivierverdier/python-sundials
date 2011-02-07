@@ -5,9 +5,6 @@ cdef class N_Vector_Serial:
     # buffer interface
     cdef __cythonbufferdefaults__ = {"ndim": 1, "mode": "c"}
     
-    def __cinit__(N_Vector_Serial self, int size):
-        pass
-    
     def __init__(N_Vector_Serial self, int size):
         assert size > 0
         self.thisptr = N_VNew_Serial(size)
@@ -33,13 +30,15 @@ cdef class N_Vector_Serial:
         (<N_VectorContent_Serial>v.content).data[index] = value
         
     def __getbuffer__(N_Vector_Serial self, Py_buffer* buffer, int flags):
+        self.__shape[0] = self.getsize()
+        
         buffer.buf = <void *>self.getdata()
         buffer.obj = self
         buffer.len = self.getsize() * sizeof(double)
         buffer.readonly = 0
         buffer.format = <char*>"d"
         buffer.ndim = 1
-        buffer.shape = NULL
+        buffer.shape = <Py_ssize_t *>&self.__shape
         buffer.strides = NULL
         buffer.suboffsets = NULL
         buffer.itemsize = sizeof(double)

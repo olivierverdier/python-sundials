@@ -241,8 +241,6 @@ cdef class IDASettings:
                 except AttributeError:
                     raise IDAError(0, "CVodeSettings: Unknown parameter: '%s'" % name)
 
-cdef class IDA
-
 cdef class IDAIterator:
     """
     Single step iterator

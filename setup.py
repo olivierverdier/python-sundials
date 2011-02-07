@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- utf8 -*-
 """
-Copyright (C) 2010 Runar Tenfjord <runar.tenfjord@tenko.no>
+Copyright (C) 2010 Runar Tenfjord <runar.tenfjord@gmail.com>
 """
 import sys
 import os
@@ -29,7 +29,7 @@ Topic :: Scientific/Engineering :: Mathematics
 try:
     setup(
       name = 'python-sundials',
-      version = '0.1',
+      version = '0.2',
       description = 'Sundials solver library wrapper',
       long_description = '''\
 **python-sundials** is a Cython wrapper for the Sundials solver suite.

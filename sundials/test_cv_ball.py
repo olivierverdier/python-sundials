@@ -1,11 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 Bouncing ball example from OpenModelical manual
 """
 import array
-
 import matplotlib
-matplotlib.use('Qt4Agg')
-
 import pylab
 
 from sundials import *
@@ -48,14 +46,11 @@ while True:
         hres.append(0.)
         
         solver.init(info.t, [-e*info.y[0], 0.])
-        
-    #print "t = %f, y = %f" % (t, y[1])
     
     if t > 10.0:
         break
 
 pylab.plot(tres,hres, linewidth=1.0)
-
 pylab.xlabel('time (s)')
 pylab.ylabel('height (m)')
 pylab.title('Bouncing ball demo')

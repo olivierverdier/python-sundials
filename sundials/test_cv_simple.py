@@ -22,7 +22,7 @@ def rootf(t,y,sw, ret = array('d', [0.])):
 
 t0 = 0
 y0 = [0.]
-solver = CVode(RHS = f, ROOT = rootf, SW = [False],
+solver = CVodeSolver(RHS = f, ROOT = rootf, SW = [False],
               abstol = 1.0e-6, reltol = 1.0e-6)
 
 solver.init(t0,y0)

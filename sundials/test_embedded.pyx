@@ -8,8 +8,8 @@ if os.name == "nt":
 else:
     timer = time.time
     
-from pysundials cimport *
-from pysundials import CVodeRootException
+from sundials cimport *
+from sundials import CVodeRootException
 
 cdef int f(realtype t, void *yv, void *yvdot, void* user_data):
     cdef double *y = N_Vector_data(yv)
@@ -22,16 +22,16 @@ cdef int f(realtype t, void *yv, void *yvdot, void* user_data):
     return 0
     
 def test_ODE():
-    cdef CVode solver
+    cdef CVodeSolver solver
     cdef CVodeIterator iter
     cdef N_Vector_Serial y
     cdef realtype t, t0, dt
     
     t0 = 0
     y0 = [1.,0.,0.]
-    solver = CVode(RHS = object(),
-                   lmm = "bdf", iter = "newton", 
-                   abstol = [1.0e-8, 1.0e-14, 1.0e-6], reltol = 1.0e-4)
+    solver = CVodeSolver(RHS = object(),
+                        lmm = "bdf", iter = "newton", 
+                        abstol = [1.0e-8, 1.0e-14, 1.0e-6], reltol = 1.0e-4)
     
     solver.RhsFn = <void *>f
     

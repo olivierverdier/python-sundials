@@ -45,7 +45,7 @@
 
 from math import e, pi, sin, exp
 from array import array
-from sundials import KINSOL
+from sundials import KINSOLSolver
 
 NVAR    = 6
 NEQ     = 6
@@ -90,7 +90,7 @@ CONSTR = [
 ]
                 
 # this init. guess should take us to (0.29945; 2.83693) */
-solver = KINSOL(F = eval_f, x0 = XINIT, cstr = CONSTR,
+solver = KINSOLSolver(F = eval_f, x0 = XINIT, cstr = CONSTR,
                 strategy = 'linesearch',
                 msbset = 1,
                 fnormtol = 1.e-5,

@@ -63,7 +63,7 @@ t0 = 0
 y0 = [1.,0.,0.]
 yd0 = [-0.04, 0.04, 0.]
 
-solver = IDA(RES = f, ROOT = r, SW = [False,False], JAC = jacf, mxsteps = 5000,
+solver = IDASolver(RES = f, ROOT = r, SW = [False,False], JAC = jacf, mxsteps = 5000,
              abstol = [1.0e-8, 1.0e-14, 1.0e-6], reltol = 1.0e-4)
 
 solver.init(t0,y0,yd0)

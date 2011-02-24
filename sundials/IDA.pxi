@@ -1,11 +1,3 @@
-cdef struct ida_userdata:
-    void *RESF
-    void *ROOTF
-    void *JACF
-    void *SW
-    void *Y
-    void *YDOT
-    
 cdef int ida_res(realtype t, N_Vector yv, N_Vector yvdot, N_Vector residual, void* user_data) with gil:
     """
     Wraps  Python res-callback function to obtain IDA required interface
@@ -117,38 +109,15 @@ cdef int ida_jac(int Neq, realtype t, realtype c, N_Vector yv, N_Vector yvdot,
     return 0
     
 class IDAError(SundialsError):
-    MAP = { \
-            IDA_MEM_NULL        : "The ida_mem argument was NULL",
-            IDA_ILL_INPUT       : "Inputs to IDA was illegal",
-            IDA_NO_MALLOC       : "The allocation function IDAInit has not been called.",
-            IDA_TOO_MUCH_WORK   : "The solver took mxstep internal steps but could not reach tout.",
-            IDA_TOO_MUCH_ACC    : "The solver could not satisfy the accuracy",
-            IDA_ERR_FAIL        : "Error test failures occurred too many times",
-            IDA_CONV_FAIL       : "Convergence test failures occurred too many times",
-            IDA_LINIT_FAIL      : "The linear solver's initialization function failed",
-            IDA_LSETUP_FAIL     : "The linear solver's setup function failed in an unrecoverable manner",
-            IDA_LSOLVE_FAIL     : "The linear solver's solve function failed in an unrecoverable manner",
-            IDA_RES_FAIL        : "The user's residual function returned a nonrecoverable error flag.",
-            IDA_CONSTR_FAIL     : "The inequality constraints were violated and the solver was unable to recover.",
-            IDA_REP_RES_ERR     : "Unable recover from multiple residual recoverable error flags",
-            IDA_MEM_FAIL        : "A memory allocation request has failed.",
-            IDA_BAD_T           : "t is not in the interval [tn - hu, tn].",
-            IDA_BAD_EWT         : "Some component of the error weight vector is zero",
-            IDA_FIRST_RES_FAIL  : "Unable recover from first residual recoverable error flag",
-            IDA_LINESEARCH_FAIL : "The linesearch algorithm failed to find a solution",
-            IDA_NO_RECOVERY     : "Unable recover from residual recoverable error flag",
-            IDA_RTFUNC_FAIL     : "The rootfinding function failed.",
-          }
-         
     def __init__(self, value = 0, msg = None):
         self.value = value
         self.msg = msg
         
     def __str__(self):
-        if self.value == 0:
+        if self.value >= 0:
             return repr(self.msg)
         else:
-            return repr(self.MAP[self.value])
+            return IDAGetReturnFlagName(self.value)
 
 class IDARootException(IDAError):
     def __init__(self, realtype t, y, ydot, SW):
@@ -245,7 +214,7 @@ cdef class IDAIterator:
     """
     Single step iterator
     """
-    def __init__(self, IDA solver, realtype t0, realtype dt):
+    def __init__(self, solver, realtype t0, realtype dt):
         self.solver = solver
         self.dt = dt
         self.t = t0 + dt
@@ -294,9 +263,11 @@ cdef class IDAIterator:
                 break
                 
             else:
+                y = self.solver.y
+                ydot = self.solver.ydot
                 flag = IDASolve(self.solver.thisptr, self.t, &self.tret,
-                                <N_Vector>self.solver.y.thisptr,
-                                <N_Vector>self.solver.ydot.thisptr, IDA_ONE_STEP)
+                                <N_Vector>y.thisptr,
+                                <N_Vector>ydot.thisptr, IDA_ONE_STEP)
             
                 if flag < 0:
                     raise IDAError(flag)
@@ -328,7 +299,7 @@ cdef class IDAIterator:
         
         return tcur, y, ydot
         
-cdef class IDA:
+cdef class IDASolver:
     """Class to wrap IDA"""
     def __init__(self, settings = None, **kwargs):
         if settings is None:

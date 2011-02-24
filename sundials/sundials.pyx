@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from libc.stdlib cimport malloc, free
-
 from SundialsLib cimport *
 
 class SundialsError(Exception):
@@ -22,7 +21,7 @@ cdef class SolverStatistics:
     
     def __str__(self):
         return '%s%s' % (self.__class__.__name__, self.__repr__())
-        
+
 include "NVECTOR.pxi"
 include "CVODE.pxi"
 include "IDA.pxi"

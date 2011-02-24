@@ -63,7 +63,7 @@ def jacf(t,y,sw, ret = [[0.,0.,0.],[0.,0.,0.],[0.,0.,0.]]):
     ret[2][1] = 6.0e7*y[1]
     return ret
     
-solver = CVode(RHS = f, ROOT = rootf, SW = [False,False], JAC = jacf,
+solver = CVodeSolver(RHS = f, ROOT = rootf, SW = [False,False], JAC = jacf,
                lmm = "bdf", iter = "newton", 
                abstol = [1.0e-8, 1.0e-14, 1.0e-6], reltol = 1.0e-4)
 

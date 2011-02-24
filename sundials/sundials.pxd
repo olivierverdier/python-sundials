@@ -46,10 +46,10 @@ cdef class CVodeSettings:
     cdef public object SW
     cdef public object JAC
 
-cdef class CVode
+cdef class CVodeSolver
 
 cdef class CVodeIterator:
-    cdef CVode solver
+    cdef CVodeSolver solver
     
     cdef public realtype dt
     cdef readonly realtype t
@@ -64,7 +64,7 @@ cdef class CVodeIterator:
     
     cdef N_Vector_Serial Next(self)
 
-cdef class CVode:
+cdef class CVodeSolver:
     cdef void *thisptr
     cdef void *RhsFn
     cdef void *RootFn
@@ -84,7 +84,7 @@ cdef class CVode:
     cpdef __handleRoot(self, realtype event_time)
     cpdef CVodeIterator iter(self, realtype t0, realtype dt)
     cpdef N_Vector_Serial step(self, realtype tf)
-    
+
 cdef struct ida_userdata:
     void *RESF
     void *ROOTF
@@ -111,10 +111,10 @@ cdef class IDASettings:
     cdef public object SW
     cdef public object JAC
 
-cdef class IDA
+cdef class IDASolver
 
 cdef class IDAIterator:
-    cdef IDA solver
+    cdef IDASolver solver
     
     cdef public realtype dt
     cdef readonly realtype t
@@ -129,7 +129,7 @@ cdef class IDAIterator:
     
     cdef Next(self)
     
-cdef class IDA:
+cdef class IDASolver:
     cdef void *thisptr
     cdef void *ResFn
     cdef void *RootFn
@@ -177,7 +177,7 @@ cdef class KINSOLSettings:
     cdef public N_Vector_Serial x0
     cdef public N_Vector_Serial cstr
     
-cdef class KINSOL:
+cdef class KINSOLSolver:
     cdef void *thisptr
     cdef kinsol_userdata userdata
     cdef N_Vector_Serial u

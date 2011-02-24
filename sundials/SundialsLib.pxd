@@ -14,8 +14,21 @@ cdef extern from "sundials/sundials_nvector.h":
 
 cdef extern from "nvector/nvector_serial.h":
     cdef N_Vector N_VMake_Serial(long int vec_length, realtype *v_data)
-
+    
+    cdef struct _N_VectorContent_Serial:
+        long int length
+        realtype *data
+        
+    ctypedef _N_VectorContent_Serial *N_VectorContent_Serial
+    
 cdef extern from "cvode/cvode.h":
+    int CV_ADAMS
+    int CV_BDF
+    int CV_FUNCTIONAL
+    int CV_NEWTON
+    int CV_NORMAL
+    int CV_ONE_STEP
+
     int CV_SUCCESS
     int CV_TSTOP_RETURN
     int CV_ROOT_RETURN
@@ -49,6 +62,7 @@ cdef extern from "cvode/cvode.h":
     ctypedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *user_data)
     
     void *CVodeCreate(int lmm, int iter)
+    int CVodeStep "CVode"(void *cvode_mem, realtype tout, N_Vector yout, realtype *tret, int itask) nogil
     int CVodeSetUserData(void *cvode_mem, void *user_data)
     int CVodeSetMaxOrd(void *cvode_mem, int maxord)
     int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
@@ -67,8 +81,8 @@ cdef extern from "cvode/cvode.h":
     int CVodeSetNoInactiveRootWarn(void *cvode_mem)
     int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
-    int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol);
-    int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol);
+    int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
+    int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
     int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
     int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *tret, int itask)
     int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
@@ -94,21 +108,27 @@ cdef extern from "cvode/cvode.h":
                                 long int *netfails, int *qlast,
                                 int *qcur, realtype *hinused, realtype *hlast,
                                 realtype *hcur, realtype *tcur)
-    int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters);
-    int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails);
+    int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
+    int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
     int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, long int *nncfails)
     char *CVodeGetReturnFlagName(int flag)
-    void CVodeFree(void **cvode_mem)
+    void CVodeFree(void *cvode_mem)
+    
+    int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
+    int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nrevalsLS)
 
 cdef extern from "sundials/sundials_direct.h":
     cdef struct _DlsMat:
         pass
         
     ctypedef _DlsMat *DlsMat
+    cdef realtype* DENSE_COL(DlsMat A, int j)
 
 cdef extern from "cvode/cvode_dense.h":
     int CVDense(void *cvode_mem, int N)
-
+    ctypedef int (*CVDlsDenseJacFn)(int N, realtype t, N_Vector y, N_Vector fy, DlsMat Jac, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+    int CVDlsSetDenseJacFn(void *cvode_mem, CVDlsDenseJacFn djac)
+    
 cdef extern from "ida/ida.h":
     int  IDA_NORMAL
     int  IDA_ONE_STEP
@@ -162,7 +182,6 @@ cdef extern from "ida/ida.h":
     int IDAReInit(void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0)
     int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
     int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
-    int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
     int IDASetNonlinConvCoefIC(void *ida_mem, realtype epiccon)
     int IDASetMaxNumStepsIC(void *ida_mem, int maxnh)
     int IDASetMaxNumJacsIC(void *ida_mem, int maxnj)
@@ -190,6 +209,8 @@ cdef extern from "ida/ida.h":
     int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
     int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
     int IDAGetNumGEvals(void *ida_mem, long int *ngevals)
+    int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
+    int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS)
     int IDAGetRootInfo(void *ida_mem, int *rootsfound)
     int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
                                           long int *nrevals, long int *nlinsetups, 
@@ -200,10 +221,13 @@ cdef extern from "ida/ida.h":
     int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
     int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,  long int *nncfails)
     char *IDAGetReturnFlagName(int flag)
-    void IDAFree(void **ida_mem)
+    void IDAFree(void *ida_mem)
 
 cdef extern from "ida/ida_dense.h":
     int IDADense(void *ida_mem, int Neq)
+    
+    ctypedef int (*IDADlsDenseJacFn)(int Neq, realtype tt, realtype cj, N_Vector yy, N_Vector yp, N_Vector rr, DlsMat Jac, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+    int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn djac)
 
 cdef extern from "kinsol/kinsol.h":
     int KIN_SUCCESS
@@ -264,4 +288,7 @@ cdef extern from "kinsol/kinsol.h":
     int KINGetFuncNorm(void *kinmem, realtype *fnorm)
     int KINGetStepLength(void *kinmem, realtype *steplength)
     char *KINGetReturnFlagName(int flag)
-    void KINFree(void **kinmem)
+    void KINFree(void *kinmem)
+
+cdef extern from "kinsol/kinsol_direct.h":
+    int KINDense(void *kinmem, int N)

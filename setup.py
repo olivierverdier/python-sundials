@@ -13,7 +13,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
 #sys.argv.append('build_ext')
-sys.argv.extend(['sdist','--formats=gztar,zip'])
+#sys.argv.extend(['sdist','--formats=gztar,zip'])
 sys.argv.append('bdist_wininst')
 
 classifiers = '''\

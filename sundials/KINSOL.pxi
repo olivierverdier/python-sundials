@@ -165,7 +165,7 @@ cdef int func(N_Vector u, N_Vector f, void *user_data):
     
     return 0
     
-cdef class KINSOL:
+cdef class KINSOLSolver:
     """Class to wrap KINSOL solver"""
     def __init__(self, settings = None, **kwargs):
         self.thisptr = KINCreate()

@@ -1,35 +1,13 @@
 class CVodeError(SundialsError):
-    MAP = { \
-           CV_TOO_MUCH_WORK     : "The solver took mxstep internal steps but still could not reach tout",
-           CV_TOO_MUCH_ACC      : "The solver could not satisfy the accuracy",
-           CV_ERR_FAILURE       : "Error test failures occurred too many times",
-           CV_CONV_FAILURE      : "Convergence test failures occurred too many times",
-           CV_LINIT_FAIL        : "The linear solver's initialization function failed",
-           CV_LSETUP_FAIL       : "The linear solver's setup function failed in an unrecoverable manner",
-           CV_LSOLVE_FAIL       : "The linear solver's solve function failed in an unrecoverable manner",
-           CV_RHSFUNC_FAIL      : "The right-hand side function failed in an unrecoverable manner",
-           CV_REPTD_RHSFUNC_ERR : "Convergence test failures occurred too many times",
-           CV_UNREC_RHSFUNC_ERR : "The right-hand function had a recoverable error, but no recovery was possible",
-           CV_RTFUNC_FAIL       : "The rootfinding function failed in an unrecoverable manner",
-           CV_MEM_FAIL          : "Memory failure",
-           CV_MEM_NULL          : "The cvode_mem argument was NULL",
-           CV_ILL_INPUT         : "inputs to CVode was illegal",
-           CV_NO_MALLOC         : "The CVODE memory was not allocated by a call to CVodeInit.",
-           CV_BAD_K             : "k is not in the range 0, 1,..., qu.",
-           CV_BAD_T             : "t is not in the interval [tn - hu, tn]",
-           CV_BAD_DKY           : "The dky argument was NULL.",
-           CV_TOO_CLOSE         : "The initial time t0 and the final time tout are too close",
-          }
-         
     def __init__(self, value = 0, msg = None):
         self.value = value
         self.msg = msg
         
     def __str__(self):
-        if self.value == 0:
+        if self.value >= 0:
             return repr(self.msg)
         else:
-            return repr(self.MAP[self.value])
+            return CVodeGetReturnFlagName(self.value)
 
 class CVodeRootException(CVodeError):
     def __init__(self, realtype t, y, SW):
@@ -120,12 +98,6 @@ cdef class CVodeSettings:
                     setattr(self, name, value)
                 except AttributeError:
                     raise CVodeError(0, "CVodeSettings: Unknown parameter: '%s'" % name)
-                    
-cdef struct cv_userdata:
-    void *RHSF
-    void *ROOTF
-    void *SW
-    void *Y
     
 cdef int cv_rhs(realtype t, N_Vector yv, N_Vector yvdot, void* user_data) with gil:
     """
@@ -227,7 +199,7 @@ cdef class CVodeIterator:
     """
     Single step iterator
     """
-    def __init__(self, CVode solver, realtype t0, realtype dt):
+    def __init__(self, solver, realtype t0, realtype dt):
         self.solver = solver
         self.dt = dt
         self.t = t0 + dt
@@ -275,7 +247,9 @@ cdef class CVodeIterator:
                 break
                 
             else:
-                flag = CVodeStep(self.solver.thisptr, self.t, <N_Vector>self.solver.y.thisptr,
+                y = self.solver.y
+                
+                flag = CVodeStep(self.solver.thisptr, self.t, <N_Vector>y.thisptr,
                          &self.tret, CV_ONE_STEP)
             
                 if flag < 0:
@@ -305,7 +279,7 @@ cdef class CVodeIterator:
         
         return tcur, self.Next()
                 
-cdef class CVode:
+cdef class CVodeSolver:
     """Class to wrap CVode"""
     def __init__(self, settings = None, **kwargs):
         if settings is None:

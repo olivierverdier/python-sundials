@@ -13,7 +13,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
 #sys.argv.append('build_ext')
-#sys.argv.extend(['sdist','--formats=gztar,zip'])
+sys.argv.extend(['sdist','--formats=gztar,zip'])
 sys.argv.append('bdist_wininst')
 
 classifiers = '''\
@@ -29,7 +29,7 @@ Topic :: Scientific/Engineering :: Mathematics
 try:
     setup(
       name = 'python-sundials',
-      version = '0.2',
+      version = '0.3',
       description = 'Sundials solver library wrapper',
       long_description = '''\
 **python-sundials** is a Cython wrapper for the Sundials solver suite.

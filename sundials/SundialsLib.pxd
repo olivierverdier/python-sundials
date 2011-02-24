@@ -1,287 +1,267 @@
 # -*- coding: utf-8 -*-
-"""
-See also Jon Olav Vik: 
-http://codespeak.net/pipermail/cython-dev/2009-June/005947.html
-
-"""
-
 cdef extern from "sundials/sundials_types.h":
     ctypedef double realtype
     ctypedef bint booleantype
-    
+
 cdef extern from "sundials/sundials_nvector.h":
     cdef struct _generic_N_Vector:
-        void* content
-    ctypedef _generic_N_Vector* N_Vector
+        void *content
+        
+    ctypedef _generic_N_Vector *N_Vector
     N_Vector N_VNew_Serial(long int vec_length)
     void N_VDestroy_Serial(N_Vector v)
     void N_VPrint_Serial(N_Vector v)
-    
-    
+
 cdef extern from "nvector/nvector_serial.h":
-    cdef struct _N_VectorContent_Serial:
-        long int length
-        realtype* data
-    ctypedef _N_VectorContent_Serial* N_VectorContent_Serial
     cdef N_Vector N_VMake_Serial(long int vec_length, realtype *v_data)
+
+cdef extern from "cvode/cvode.h":
+    int CV_SUCCESS
+    int CV_TSTOP_RETURN
+    int CV_ROOT_RETURN
+
+    int CV_WARNING
+
+    int CV_TOO_MUCH_WORK
+    int CV_TOO_MUCH_ACC
+    int CV_ERR_FAILURE
+    int CV_CONV_FAILURE
+
+    int CV_LINIT_FAIL
+    int CV_LSETUP_FAIL
+    int CV_LSOLVE_FAIL
+    int CV_RHSFUNC_FAIL
+    int CV_FIRST_RHSFUNC_ERR
+    int CV_REPTD_RHSFUNC_ERR
+    int CV_UNREC_RHSFUNC_ERR
+    int CV_RTFUNC_FAIL
+
+    int CV_MEM_FAIL
+    int CV_MEM_NULL
+    int CV_ILL_INPUT
+    int CV_NO_MALLOC
+    int CV_BAD_K
+    int CV_BAD_T
+    int CV_BAD_DKY
+    int CV_TOO_CLOSE
+    
+    ctypedef int (*CVRhsFn)(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+    ctypedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout, void *user_data)
+    
+    void *CVodeCreate(int lmm, int iter)
+    int CVodeSetUserData(void *cvode_mem, void *user_data)
+    int CVodeSetMaxOrd(void *cvode_mem, int maxord)
+    int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
+    int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
+    int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet)
+    int CVodeSetInitStep(void *cvode_mem, realtype hin)
+    int CVodeSetMinStep(void *cvode_mem, realtype hmin)
+    int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
+    int CVodeSetStopTime(void *cvode_mem, realtype tstop)
+    int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
+    int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
+    int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
+    int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
+    int CVodeSetIterType(void *cvode_mem, int iter)
+    int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
+    int CVodeSetNoInactiveRootWarn(void *cvode_mem)
+    int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
+    int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
+    int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol);
+    int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol);
+    int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
+    int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *tret, int itask)
+    int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
+    int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
+    int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
+    int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
+    int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
+    int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
+    int CVodeGetLastOrder(void *cvode_mem, int *qlast)
+    int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
+    int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
+    int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
+    int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
+    int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
+    int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
+    int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac)
+    int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
+    int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
+    int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
+    int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
+    int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps,
+                                long int *nfevals, long int *nlinsetups,
+                                long int *netfails, int *qlast,
+                                int *qcur, realtype *hinused, realtype *hlast,
+                                realtype *hcur, realtype *tcur)
+    int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters);
+    int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails);
+    int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, long int *nncfails)
+    char *CVodeGetReturnFlagName(int flag)
+    void CVodeFree(void **cvode_mem)
 
 cdef extern from "sundials/sundials_direct.h":
     cdef struct _DlsMat:
-        int type
-        int M
-        int N
-        int ldim
-        int mu
-        int ml
-        int s_mu
-        realtype *data
-        int ldata
-        realtype **cols
-    ctypedef _DlsMat* DlsMat
-    cdef realtype* DENSE_COL(DlsMat A, int j)
+        pass
+        
+    ctypedef _DlsMat *DlsMat
 
-cdef extern from "cvode/cvode.h":
-    void* CVodeCreate(int lmm, int iter)
-    ctypedef int (*CVRhsFn)(realtype t, N_Vector y, N_Vector ydot, void *f_data)
-    int CVodeInit(void* cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
-    int CVodeReInit(void* cvode_mem, realtype t0, N_Vector y0)
-    int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
-    int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
-    int CVodeSetStopTime(void* cvode_mem, realtype tstop)
-    int CVodeGetIntegratorStats(void* cvode_mem, long int *nsteps, long int *nfevals,
-                                long int *nlinsetups, long int *netfails, int *qlast, int *qcur,
-                                realtype *hinused, realtype *hlast, realtype *hcur, realtype *tcur)
-    int CVodeSetMaxOrd(void * cvode_mem, int maxord)
-    int CVodeSetMaxNumSteps(void * cvode_mem, long int mxsteps)
-    int CVodeSetMaxStep(void* cvode_mem, realtype hmax)
-    int CVodeSetInitStep(void * cvode_mem, realtype hin)
-    
-    # Error in def?
-    void CVodeFree(void *cvode_mem)
-    
-    int CVodeStep "CVode"(void *cvode_mem, realtype tout, N_Vector yout, realtype *tret, 
-        int itask) nogil
-    int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky) nogil
-    
-    int CVodeSetUserData(void *cvode_mem,void *user_data)
-    
-    # functions for discontinuity handling
-    ctypedef int (*CVRootFn)(realtype tt, N_Vector yy, realtype *gout, void *user_data)
-    int CVodeRootDirection(void *cvode_mem, int *rootdir)
-    int CVodeSetNoInactiveRootWarn(void *cvode_mem)
-    int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
-    int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
-    
-    #Functions for retrieving statistics
-    int CVodeGetLastOrder(void * cvode_mem,int *qlast)
-    int CVodeGetCurrentOrder(void * cvode_mem,int *qcurrent)
-    int CVodeGetNumSteps(void *cvode_mem, long int *nsteps) #Number of steps
-    int CVodeGetLastStep(void *cvode_mem, realtype *hlast) # Last internal step
-    int CVodeGetNumRhsEvals(void *cvode_mem, long int *nrevals) #Number of function evals
-    int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals) #Number of jac evals
-    int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nrevalsLS) #Number of res evals due to jac evals
-    int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals) #Number of root evals
-    int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails) #Number of local error test failures
-    int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters) #Number of nonlinear iteration
-    int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails) #Number of nonlinear conv failures
-    
 cdef extern from "cvode/cvode_dense.h":
-    int CVDense(void *cvode_mem, long int N)
-    ctypedef int (*CVDlsDenseJacFn)(int N, realtype t, N_Vector y, N_Vector fy, DlsMat Jac, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-    int CVDlsSetDenseJacFn(void *cvode_mem, CVDlsDenseJacFn djac)
-    
+    int CVDense(void *cvode_mem, int N)
+
 cdef extern from "ida/ida.h":
+    int  IDA_NORMAL
+    int  IDA_ONE_STEP
+    int  IDA_YA_YDP_INIT
+    int  IDA_Y_INIT
+    int  IDA_SUCCESS
+    int  IDA_TSTOP_RETURN
+    int  IDA_ROOT_RETURN
+    int  IDA_WARNING
+    int  IDA_MEM_NULL
+    int  IDA_ILL_INPUT
+    int  IDA_NO_MALLOC
+    int  IDA_TOO_MUCH_WORK
+    int  IDA_TOO_MUCH_ACC
+    int  IDA_ERR_FAIL
+    int  IDA_CONV_FAIL
+    int  IDA_LINIT_FAIL
+    int  IDA_LSETUP_FAIL
+    int  IDA_LSOLVE_FAIL
+    int  IDA_RES_FAIL
+    int  IDA_CONSTR_FAIL
+    int  IDA_REP_RES_ERR
+    int  IDA_MEM_FAIL
+    int  IDA_BAD_T
+    int  IDA_BAD_EWT
+    int  IDA_FIRST_RES_FAIL
+    int  IDA_LINESEARCH_FAIL
+    int  IDA_NO_RECOVERY
+    int  IDA_RTFUNC_FAIL
+    
     ctypedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
-    void* IDACreate()
-    int IDAInit(void* ida_mem, IDAResFn res, realtype t0, N_Vector y0, N_Vector yp0)
-    int IDAReInit(void* ida_mem, realtype t0, N_Vector y0, N_Vector yp0)
-    int IDASetStopTime(void* ida_mem, realtype tstop)
-    int IDASetMaxNumSteps(void * cvode_mem, long int mxsteps)
-    int IDASetMaxOrd(void * cvode_mem, int maxord)
-    int IDASetMaxStep(void* ida_mem, realtype hmax)
-    void IDAFree(void *cvode_mem)
-    int IDAGetIntegratorStats(void* ida_mem,long int  *nsteps, long int *nrevals, 
-                            long int *nlinsetups, long int *netfails, int *klast, 
-                            int *kcur, realtype *hinused, realtype *hlast, 
-                            realtype *hcur, realtype *tcur)
-    int IDASolve(void* ida_mem, realtype tout,realtype  *tret, N_Vector yret, 
-                            N_Vector ypret, int itask)
-    int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
-    int IDASetUserData(void *ida_mem,void *user_data)
-    # functions to control the error test
-    int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
-    int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
+    ctypedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp, realtype *gout, void *user_data)
+    
+    void *IDACreate()
+    int IDASetUserData(void *ida_mem, void *user_data)
+    int IDASetMaxOrd(void *ida_mem, int maxord)
+    int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
+    int IDASetInitStep(void *ida_mem, realtype hin)
+    int IDASetMaxStep(void *ida_mem, realtype hmax)
+    int IDASetStopTime(void *ida_mem, realtype tstop)
+    int IDASetNonlinConvCoef(void *ida_mem, realtype epcon)
+    int IDASetMaxErrTestFails(void *ida_mem, int maxnef)
+    int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
+    int IDASetMaxConvFails(void *ida_mem, int maxncf)
     int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg)
     int IDASetId(void *ida_mem, N_Vector id)
-    
-    # functions for discontinuity handling
-    ctypedef int (*IDARootFn)(realtype tt, N_Vector yy, N_Vector yp, realtype *gout, void *user_data)
+    int IDASetConstraints(void *ida_mem, N_Vector constraints)
     int IDASetRootDirection(void *ida_mem, int *rootdir)
     int IDASetNoInactiveRootWarn(void *ida_mem)
-    int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
-    int IDAGetRootInfo(void *ida_mem, int *rootsfound)
-    int IDACalcIC(void *ida_men, int icopt, realtype tout1)
-    int IDAGetConsistentIC(void *ida_mem, N_Vector y0, N_Vector yp0)
+    int IDAInit(void *ida_mem, IDAResFn res, realtype t0, N_Vector yy0, N_Vector yp0)
+    int IDAReInit(void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0)
+    int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
+    int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
+    int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
+    int IDASetNonlinConvCoefIC(void *ida_mem, realtype epiccon)
+    int IDASetMaxNumStepsIC(void *ida_mem, int maxnh)
+    int IDASetMaxNumJacsIC(void *ida_mem, int maxnj)
+    int IDASetMaxNumItersIC(void *ida_mem, int maxnit)
     int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff)
-    
-    #Functions for retrieving statistics
-    int IDAGetLastOrder(void *ida_mem,int *qlast) #Last order used
-    int IDAGetCurrentOrder(void *ida_mem,int *qcurrent) #Order that is about to be tried
-    int IDAGetNumSteps(void *ida_mem, long int *nsteps) #Number of steps
-    int IDAGetNumResEvals(void *ida_mem, long int *nrevals) #Number of res evals
-    int IDAGetLastStep(void *ida_mem, realtype *hlast) # last step size
-    int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals) #Number of jac evals
-    int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS) #Number of res evals due to jac evals
-    int IDAGetNumGEvals(void *ida_mem, long int *ngevals) #Number of root evals
-    int IDAGetNumErrTestFails(void *ida_mem, long int *netfails) #Number of local error test failures
-    int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters) #Number of nonlinear iteration
-    int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails) #Number of nonlinear conv failures
+    int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
+    int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
+    int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
+    int IDASolve(void *ida_mem, realtype tout, realtype *tret, N_Vector yret, N_Vector ypret, int itask)
+    int IDAGetSolution(void *ida_mem, realtype t,  N_Vector yret, N_Vector ypret)
+    int IDAGetWorkSpace(void *ida_mem, long int *lenrw, long int *leniw)
+    int IDAGetNumSteps(void *ida_mem, long int *nsteps)
+    int IDAGetNumResEvals(void *ida_mem, long int *nrevals)
+    int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups)
+    int IDAGetNumErrTestFails(void *ida_mem, long int *netfails)
+    int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktr)
+    int IDAGetConsistentIC(void *ida_mem, N_Vector yy0_mod, N_Vector yp0_mod)
+    int IDAGetLastOrder(void *ida_mem, int *klast)
+    int IDAGetCurrentOrder(void *ida_mem, int *kcur)
+    int IDAGetActualInitStep(void *ida_mem, realtype *hinused)
+    int IDAGetLastStep(void *ida_mem, realtype *hlast)
+    int IDAGetCurrentStep(void *ida_mem, realtype *hcur)
+    int IDAGetCurrentTime(void *ida_mem, realtype *tcur)
+    int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact)
+    int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
+    int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
+    int IDAGetNumGEvals(void *ida_mem, long int *ngevals)
+    int IDAGetRootInfo(void *ida_mem, int *rootsfound)
+    int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
+                                          long int *nrevals, long int *nlinsetups, 
+                                          long int *netfails, int *qlast, int *qcur, 
+                                          realtype *hinused, realtype *hlast, realtype *hcur, 
+                                          realtype *tcur)
+    int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
+    int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
+    int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,  long int *nncfails)
+    char *IDAGetReturnFlagName(int flag)
+    void IDAFree(void **ida_mem)
 
 cdef extern from "ida/ida_dense.h":
-    int IDADense(void *ida_mem, long int N)
-    ctypedef int (*IDADlsDenseJacFn)(int Neq, realtype tt, realtype cj, N_Vector yy, N_Vector yp, N_Vector rr, DlsMat Jac, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-    int IDADlsSetDenseJacFn(void *ida_mem, IDADlsDenseJacFn djac)
+    int IDADense(void *ida_mem, int Neq)
 
-cdef extern from "kinsol/kinsol_direct.h":
-    int KINDense(void *kinmem, int N)
-    
 cdef extern from "kinsol/kinsol.h":
-    void *KINCreate()
-    void KINFree(void *kinmem)
+    int KIN_SUCCESS
+    int KIN_INITIAL_GUESS_OK
+    int KIN_STEP_LT_STPTOL
+    int KIN_WARNING
+    int KIN_MEM_NULL
+    int KIN_ILL_INPUT
+    int KIN_NO_MALLOC
+    int KIN_MEM_FAIL
+    int KIN_LINESEARCH_NONCONV
+    int KIN_MAXITER_REACHED
+    int KIN_MXNEWT_5X_EXCEEDED
+    int KIN_LINESEARCH_BCFAIL
+    int KIN_LINSOLV_NO_RECOVERY
+    int KIN_LINIT_FAIL
+    int KIN_LSETUP_FAIL
+    int KIN_LSOLVE_FAIL
+    int KIN_SYSFUNC_FAIL
+    int KIN_FIRST_SYSFUNC_ERR
+    int KIN_REPTD_SYSFUNC_ERR
+    int KIN_ETACHOICE1
+    int KIN_ETACHOICE2
+    int KIN_ETACONSTANT
+    int KIN_NONE
+    int KIN_LINESEARCH
     
     ctypedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *user_data)
-    int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
     
+    void *KINCreate()
     int KINSetUserData(void *kinmem, void *user_data)
-    int KINSetConstraints(void *kinmem, N_Vector constraints)
+    int KINSetPrintLevel(void *kinmemm, int printfl)
+    int KINSetNumMaxIters(void *kinmem, long int mxiter)
+    int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
+    int KINSetNoResMon(void *kinmem, booleantype noNNIResMon)
+    int KINSetMaxSetupCalls(void *kinmem, long int msbset)
+    int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub)
+    int KINSetEtaForm(void *kinmem, int etachoice)
+    int KINSetEtaConstValue(void *kinmem, realtype eta)
+    int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
+    int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
+    int KINSetResMonConstValue(void *kinmem, realtype omegaconst)
+    int KINSetNoMinEps(void *kinmem, booleantype noMinEps)
+    int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep)
+    int KINSetMaxBetaFails(void *kinmem, long int mxnbcf)
+    int KINSetRelErrFunc(void *kinmem, realtype relfunc)
     int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
     int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
-    int KINSetNumMaxIters(void *kinmem, long int mxiter)
-    int KINSetMaxSetupCalls(void *kinmem, long int msbset)
-    
+    int KINSetConstraints(void *kinmem, N_Vector constraints)
+    int KINSetSysFunc(void *kinmem, KINSysFn func)
+    int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
     int KINSol(void *kinmem, N_Vector uu, int strategy, N_Vector u_scale, N_Vector f_scale)
-    
-    int KINGetNumFuncEvals(void *kinmem, long int *nfevals)
+    int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw)
     int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters)
-    
-#===============================================================
-# Constants
-#===============================================================
-cdef enum:
-    #a) CVODE in
-    CV_RHS_IND        = 0   # Index to user data rhs handling
-    CV_RHSF_IND       = 0   # Index to user data rhs
-    CV_JAC_IND        = 1   # Index to user data jacobian
-    CV_ROOT_IND       = 1   # Index to user data root handling
-    CV_ROOTF_IND      = 0   # Index to user data root function
-    CV_SW_IND         = 1   # Index to user data root switches
-    CV_ADAMS = 1
-    CV_BDF   = 2
-    CV_FUNCTIONAL = 1
-    CV_NEWTON     = 2
-    CV_SS = 1
-    CV_SV = 2
-    CV_WF = 3
-    CV_NORMAL         = 1
-    CV_ONE_STEP       = 2
-    CV_NORMAL_TSTOP   = 3
-    CV_ONE_STEP_TSTOP = 4
-
-    #b) CVODE out
-    CV_SUCCESS = 0
-    CV_TSTOP_RETURN = 1
-    CV_ROOT_RETURN    = 2   # CVSolve succeeded and found one or more roots.
-    
-    CV_TOO_MUCH_WORK        = -1  # The solver took mxstep internal steps but still could not reach tout
-    CV_TOO_MUCH_ACC         = -2  # The solver could not satisfy the accuracy
-    CV_ERR_FAILURE          = -3  # Error test failures occurred too many times
-    CV_CONV_FAILURE         = -4  # Convergence test failures occurred too many times
-    CV_LINIT_FAIL           = -5  # The linear solver's initialization function failed.
-    CV_LSETUP_FAIL          = -6  # The linear solver's setup function failed in an unrecoverable manner.
-    CV_LSOLVE_FAIL          = -7  # The linear solver's solve function failed in an unrecoverable manner.
-    CV_RHSFUNC_FAIL         = -8  # The right-hand side function failed in an unrecoverable manner.
-    CV_FIRST_RHSFUNC_ERR    = -9  # The right-hand side function had a recoverable error at the first call.
-    CV_REPTD_RHSFUNC_ERR    = -10 # Convergence test failures occurred too many times
-    CV_UNREC_RHSFUNC_ERR    = -11 # The right-hand function had a recoverable error, but no recovery was possible
-    CV_RTFUNC_FAIL          = -12 # The rootfinding function failed in an unrecoverable manner.
-    
-    CV_MEM_FAIL       = -20 # Memory failure
-    CV_MEM_NULL       = -21 # The cvode_mem argument was NULL.
-    CV_ILL_INPUT      = -22 # Inputs to CVode was illegal
-    CV_NO_MALLOC      = -23 # The CVODE memory was not allocated by a call to CVodeInit.
-    CV_BAD_K          = -24 # k is not in the range 0, 1,..., qu.
-    CV_BAD_T          = -25 # t is not in the interval [tn - hu, tn].
-    CV_BAD_DKY        = -26 # The dky argument was NULL.
-    CV_TOO_CLOSE      = -27 # The initial time t0 and the final time tout are too close
-    
-    #c) IDA in
-    IDA_NORMAL         = 1   # Solver returns at specified output time.
-    IDA_ONE_STEP       = 2   # Solver returns after each successful step.
-    IDA_RES_IND        = 0   # Index to user data residual handling
-    IDA_RESF_IND       = 0   # Index to user data residual
-    IDA_JAC_IND        = 1   # Index to user data jacobian
-    IDA_ROOT_IND       = 1   # Index to user data root handling
-    IDA_ROOTF_IND      = 0   # Index to user data root function
-    IDA_SW_IND         = 1   # Index to user data root switches
-    IDA_YA_YDP_INIT    = 1   # See IDA Documentation 4.5.4
-    IDA_Y_INIT         = 2   # See IDA Documentation 4.5.4
-
-    #d) IDA out
-    IDA_SUCCESS        = 0   # Successful function return.   
-    IDA_TSTOP_RETURN   = 1   # IDASolve succeeded by reaching the specified stopping point.
-    IDA_ROOT_RETURN    = 2   # IDASolve succeeded and found one or more roots.
-    
-    IDA_MEM_NULL        = -1    # The ida_mem argument was NULL
-    IDA_ILL_INPUT       = -2    # Inputs to IDA was illegal
-    IDA_NO_MALLOC       = -3    # The allocation function IDAInit has not been called.
-    IDA_TOO_MUCH_WORK   = -4    # The solver took mxstep internal steps but could not reach tout.
-    IDA_TOO_MUCH_ACC    = -5    # The solver could not satisfy the accuracy
-    IDA_ERR_FAIL        = -6    # Error test failures occurred too many times
-    IDA_CONV_FAIL       = -7    # Convergence test failures occurred too many times
-    IDA_LINIT_FAIL      = -8    # The linear solver's initialization function failed
-    IDA_LSETUP_FAIL     = -9    # The linear solver's setup function failed in an unrecoverable manner
-    IDA_LSOLVE_FAIL     = -10   # The linear solver's solve function failed in an unrecoverable manner
-    IDA_RES_FAIL        = -11   # The user's residual function returned a nonrecoverable error flag.
-    IDA_CONSTR_FAIL     = -12   # The inequality constraints were violated and the solver was unable to recover.
-    IDA_REP_RES_ERR     = -13   # Unable recover from multiple residual recoverable error flags
-    IDA_MEM_FAIL        = -14   # A memory allocation request has failed.
-    IDA_BAD_T           = -15   # t is not in the interval [tn - hu, tn].
-    IDA_BAD_EWT         = -16   # Some component of the error weight vector is zero
-    IDA_FIRST_RES_FAIL  = -17   # Unable recover from first residual recoverable error flag
-    IDA_LINESEARCH_FAIL = -18   # The linesearch algorithm failed to find a solution
-    IDA_NO_RECOVERY     = -19   # Unable recover from residual recoverable error flag
-    IDA_RTFUNC_FAIL     = -20   # The rootfinding function failed.
-    
-    KIN_NONE                    = 0
-    KIN_LINESEARCH              = 1
-
-    KIN_SUCCESS                 = 0
-    KIN_INITIAL_GUESS_OK        = 1
-    KIN_STEP_LT_STPTOL          = 2
-
-    KIN_WARNING                 = 99
-
-    KIN_MEM_NULL                = -1
-    KIN_ILL_INPUT               = -2
-    KIN_NO_MALLOC               = -3
-    KIN_MEM_FAIL                = -4
-    KIN_LINESEARCH_NONCONV      = -5
-    KIN_MAXITER_REACHED         = -6
-    KIN_MXNEWT_5X_EXCEEDED      = -7
-    KIN_LINESEARCH_BCFAIL       = -8
-    KIN_LINSOLV_NO_RECOVERY     = -9
-    KIN_LINIT_FAIL              = -10
-    KIN_LSETUP_FAIL             = -11
-    KIN_LSOLVE_FAIL             = -12
-
-    KIN_SYSFUNC_FAIL            = -13
-    KIN_FIRST_SYSFUNC_ERR       = -14
-    KIN_REPTD_SYSFUNC_ERR       = -15
-
-    KINDLS_SUCCESS              =  0
-    KINDLS_MEM_NULL             = -1
-    KINDLS_LMEM_NULL            = -2
-    KINDLS_ILL_INPUT            = -3
-    KINDLS_MEM_FAIL             = -4
-    KINDLS_JACFUNC_UNRECVR      = -5
-    KINDLS_JACFUNC_RECVR        = -6
+    int KINGetNumFuncEvals(void *kinmem, long int *nfevals)
+    int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails) 
+    int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr)
+    int KINGetFuncNorm(void *kinmem, realtype *fnorm)
+    int KINGetStepLength(void *kinmem, realtype *steplength)
+    char *KINGetReturnFlagName(int flag)
+    void KINFree(void **kinmem)

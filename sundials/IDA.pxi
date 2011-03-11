@@ -316,7 +316,7 @@ cdef class IDASolver:
 
     def __dealloc__(self):
         if self.thisptr != NULL:
-            IDAFree(self.thisptr)
+            IDAFree(&self.thisptr)
     
     def stat(self):
         """

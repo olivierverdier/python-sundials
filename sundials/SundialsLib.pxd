@@ -112,7 +112,7 @@ cdef extern from "cvode/cvode.h":
     int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
     int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, long int *nncfails)
     char *CVodeGetReturnFlagName(int flag)
-    void CVodeFree(void *cvode_mem)
+    void CVodeFree(void **cvode_mem)
     
     int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
     int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nrevalsLS)
@@ -221,7 +221,7 @@ cdef extern from "ida/ida.h":
     int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
     int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,  long int *nncfails)
     char *IDAGetReturnFlagName(int flag)
-    void IDAFree(void *ida_mem)
+    void IDAFree(void **ida_mem)
 
 cdef extern from "ida/ida_dense.h":
     int IDADense(void *ida_mem, int Neq)
@@ -288,7 +288,7 @@ cdef extern from "kinsol/kinsol.h":
     int KINGetFuncNorm(void *kinmem, realtype *fnorm)
     int KINGetStepLength(void *kinmem, realtype *steplength)
     char *KINGetReturnFlagName(int flag)
-    void KINFree(void *kinmem)
+    void KINFree(void **kinmem)
 
 cdef extern from "kinsol/kinsol_direct.h":
     int KINDense(void *kinmem, int N)

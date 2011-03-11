@@ -296,7 +296,7 @@ cdef class CVodeSolver:
             
     def __dealloc__(self):
         if self.thisptr != NULL:
-            CVodeFree(self.thisptr)
+            CVodeFree(&self.thisptr)
         
     def stat(self):
         """

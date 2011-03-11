@@ -276,4 +276,4 @@ cdef class KINSOLSolver:
                                         
     def __dealloc__(self):
         if self.thisptr != NULL:
-            KINFree(self.thisptr)
+            KINFree(&self.thisptr)

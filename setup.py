@@ -29,7 +29,7 @@ Topic :: Scientific/Engineering :: Mathematics
 try:
     setup(
       name = 'python-sundials',
-      version = '0.3',
+      version = '0.4',
       description = 'Sundials solver library wrapper',
       long_description = '''\
 **python-sundials** is a Cython wrapper for the Sundials solver suite.

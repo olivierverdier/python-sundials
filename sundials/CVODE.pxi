@@ -230,7 +230,7 @@ cdef class CVodeIterator:
         while True:
             if self.root and self.t >= self.troot:
                 self.root = False
-                self.solver.__handleRoot(self.troot)
+                self.solver.__handleRoot(self.troot, self.yroot)
                 
             elif (self.tret - self.hlast) <= self.t <= self.tret:
                 tcur = self.t
@@ -258,6 +258,7 @@ cdef class CVodeIterator:
                 if flag == CV_ROOT_RETURN:
                     self.root = True
                     self.troot = self.tret
+                    self.yroot = y.copy()
                 
                 elif flag == CV_TSTOP_RETURN:
                     self.stop = True
@@ -436,7 +437,7 @@ cdef class CVodeSolver:
         if flag != CV_SUCCESS:
             raise CVodeError(flag)
         
-    cpdef __handleRoot(self, realtype event_time):
+    cpdef __handleRoot(self, realtype event_time, N_Vector_Serial y):
         """
         Create root expection with info on time
         and solution vector.
@@ -450,7 +451,7 @@ cdef class CVodeSolver:
         
         SW = [bool(event_info[i]) for i in range(size)]
         
-        raise CVodeRootException(event_time, self.y.copy(), SW)
+        raise CVodeRootException(event_time, y, SW)
     
     cpdef CVodeIterator iter(self, realtype t0, realtype dt):
         """
@@ -473,6 +474,6 @@ cdef class CVodeSolver:
             raise CVodeError(flag)
         
         if flag == CV_ROOT_RETURN:
-            self.__handleRoot(tret)
+            self.__handleRoot(tret, self.y.copy())
         
         return self.y.copy()

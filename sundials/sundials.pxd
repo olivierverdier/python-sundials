@@ -56,6 +56,7 @@ cdef class CVodeIterator:
     
     cdef realtype tret
     cdef realtype troot
+    cdef N_Vector_Serial yroot
     cdef realtype hlast
     
     cdef bint root
@@ -81,7 +82,7 @@ cdef class CVodeSolver:
     cdef object JACF
     cdef public object SW
     
-    cpdef __handleRoot(self, realtype event_time)
+    cpdef __handleRoot(self, realtype event_time, N_Vector_Serial y)
     cpdef CVodeIterator iter(self, realtype t0, realtype dt)
     cpdef N_Vector_Serial step(self, realtype tf)
 
@@ -121,6 +122,8 @@ cdef class IDAIterator:
     
     cdef realtype tret
     cdef realtype troot
+    cdef N_Vector_Serial yroot
+    cdef N_Vector_Serial ydotroot
     cdef realtype hlast
     
     cdef bint root
@@ -151,7 +154,7 @@ cdef class IDASolver:
     cdef public IDASettings settings
     
     cpdef GetConsistentIC(self, realtype direction)
-    cpdef __handleRoot(self, realtype event_time)
+    cpdef __handleRoot(self, realtype event_time, N_Vector_Serial yroot, N_Vector_Serial ydotroot)
     cpdef IDAIterator iter(self, realtype t0, realtype dt)
     cpdef step(self, realtype tf)
 

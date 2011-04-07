@@ -246,7 +246,7 @@ cdef class IDAIterator:
         while True:
             if self.root and self.t >= self.troot:
                 self.root = False
-                self.solver.__handleRoot(self.troot)
+                self.solver.__handleRoot(self.troot, self.yroot, self.ydotroot)
                 
             elif (self.tret - self.hlast) <= self.t <= self.tret:
                 tcur = self.t
@@ -277,7 +277,9 @@ cdef class IDAIterator:
                 if flag == IDA_ROOT_RETURN:
                     self.root = True
                     self.troot = self.tret
-                
+                    self.yroot = y.copy()
+                    self.ydotroot = ydot.copy()
+    
                 elif flag == IDA_TSTOP_RETURN:
                     self.stop = True
                     
@@ -510,7 +512,7 @@ cdef class IDASolver:
         if flag != IDA_SUCCESS:
             raise IDAError(flag)
             
-    cpdef __handleRoot(self, realtype event_time):
+    cpdef __handleRoot(self, realtype event_time, N_Vector_Serial yroot, N_Vector_Serial ydotroot):
         """
         Create root expection with info on time
         and solution vector.
@@ -524,7 +526,7 @@ cdef class IDASolver:
         
         SW = [bool(event_info[i]) for i in range(size)]
         
-        raise IDARootException(event_time, self.y.copy(), self.ydot.copy(), SW)
+        raise IDARootException(event_time, yroot, ydotroot, SW)
     
     cpdef IDAIterator iter(self, realtype t0, realtype dt):
         """
@@ -547,7 +549,7 @@ cdef class IDASolver:
             raise IDAError(flag)
         
         if flag == IDA_ROOT_RETURN:
-            self.__handleRoot(tret)
+            self.__handleRoot(tret, self.y.copy(), self.ydot.copy())
         
         return self.y.copy(), self.ydot.copy()
         

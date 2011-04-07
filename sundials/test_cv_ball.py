@@ -14,7 +14,7 @@ TINY = 1e-16
 
 def f(t,y,sw):
     if sw[0]:
-        return [0., y[0]]
+        return [0., 0.]
     else:
         return [-g, y[0]]
     
@@ -22,13 +22,13 @@ def rootf(t,y,sw):
     return [y[1] + TINY]
 
 t0 = 0
-y0 = array.array('d', [0.,10.])
+y0 = array.array('d', [0.,1.])
 solver = CVodeSolver(RHS = f, ROOT = rootf, SW = [False],
                abstol = 1.0e-6, reltol = 1.0e-6)
 
 solver.init(t0,y0)
 
-dt = .1
+dt = .01
 iter = solver.iter(t0, dt)
 tres = [t0]
 hres = [y0[1]]
@@ -47,7 +47,7 @@ while True:
         
         solver.init(info.t, [-e*info.y[0], 0.])
     
-    if t > 10.0:
+    if t > 3.0:
         break
 
 pylab.plot(tres,hres, linewidth=1.0)

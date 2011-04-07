@@ -225,7 +225,7 @@ cdef class CVodeIterator:
         cdef realtype tcur
         cdef int flag
         
-        y = N_Vector_Serial(self.solver.y.getsize())
+        y = self.solver.y
         
         while True:
             if self.root and self.t >= self.troot:
@@ -247,8 +247,6 @@ cdef class CVodeIterator:
                 break
                 
             else:
-                y = self.solver.y
-                
                 flag = CVodeStep(self.solver.thisptr, self.t, <N_Vector>y.thisptr,
                          &self.tret, CV_ONE_STEP)
             

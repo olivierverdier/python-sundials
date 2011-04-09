@@ -10,5 +10,3 @@ Mr. Jon Olav Vik.
 
 The CVODE and IDA solvers support root finding and the solver throws an exception
 on finding a root.
-
-There is also an example of implementing the explicit equation in Cython for speed.

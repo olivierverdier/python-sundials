@@ -29,7 +29,7 @@ Topic :: Scientific/Engineering :: Mathematics
 try:
     setup(
       name = 'python-sundials',
-      version = '0.4',
+      version = '0.5',
       description = 'Sundials solver library wrapper',
       long_description = '''\
 **python-sundials** is a Cython wrapper for the Sundials solver suite.
@@ -44,8 +44,6 @@ Mr. Jon Olav Vik.
 
 The CVODE and IDA solvers support root finding and the solver throws an exception
 on finding a root.
-
-There is also an example of implementing the explicit equation in Cython for speed.
 ''',
         
     classifiers = [value for value in classifiers.split("\n") if value],

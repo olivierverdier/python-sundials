@@ -77,14 +77,14 @@ t = 0.4
 while t < 4e11:
     try:
         y = solver.step(t)
-    except CVodeRootException, info:
-        print 'root'
-        print "%.4e  %.6e  %.6e  %.6e" % (info.t, info.y[0], info.y[1], info.y[2])
+    except CVodeRootException as info:
+        print('root')
+        print("%.4e  %.6e  %.6e  %.6e" % (info.t, info.y[0], info.y[1], info.y[2]))
         continue
     
-    print "%.4e  %.6e  %.6e  %.6e" % (t, y[0], y[1], y[2])
+    print("%.4e  %.6e  %.6e  %.6e" % (t, y[0], y[1], y[2]))
     t *= 10
 
-print 'timer : ', timer() - start
-print
-print solver.stat()
+print('timer : ', timer() - start)
+print()
+print(solver.stat())

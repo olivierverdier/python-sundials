@@ -26,20 +26,20 @@ solver = CVodeSolver(RHS = f, ROOT = rootf, SW = [False],
               abstol = 1.0e-6, reltol = 1.0e-6)
 
 solver.init(t0,y0)
-print solver.settings
+print(solver.settings)
 
 
 while True:
     try:
         y = solver.step(5.)
-    except CVodeRootException, info:
-        print 'root t = ', info.t
+    except CVodeRootException as info:
+        print('root t = ', info.t)
         continue
     else:
-        print 't = 5., y = ', y
+        print('t = 5., y = ', y)
         break
 
-print
+print()
 
 solver.init(t0, y0)
 
@@ -49,15 +49,15 @@ start = timer()
 while True:
     try:
         t, y = next(iter)
-    except CVodeRootException, info:
-        print 'root found at t =', info.t
+    except CVodeRootException as info:
+        print('root found at t =', info.t)
     
     #print "t = %f, y = %f" % (t, y[0])
     
     if iter.t > 5.0:
         break
 
-print 'timer : ', timer() - start
-print
-print solver.stat()
-print
+print('timer : ', timer() - start)
+print()
+print(solver.stat())
+print()

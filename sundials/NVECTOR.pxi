@@ -71,9 +71,9 @@ cdef class N_Vector_Serial:
             
         ret = [None] * size
         for index in range(size):
-            ret[index] = typestr  % data[index]
-        
-        return "(%s)" % ",".join(ret)
+            ret[index] = typestr % data[index]
+         
+        return "({})".format( (b",".join(ret)).decode('utf-8') )
     
     def __str__(N_Vector_Serial self):
         return '%s%s' % (self.__class__.__name__, self.__repr__())

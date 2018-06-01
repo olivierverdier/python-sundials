@@ -72,13 +72,13 @@ t = t0 + .4
 while t < 4e11:
     try:
         y, ydot = solver.step(t)
-    except IDARootException, info:
-        print 'root:'
-        print "%.4e  %.4e  %.4e  %.4e" % (info.t, info.y[0], info.y[1], info.y[2])
+    except IDARootException as info:
+        print('root:')
+        print("%.4e  %.4e  %.4e  %.4e" % (info.t, info.y[0], info.y[1], info.y[2]))
         continue
         
-    print "%.4e  %.4e  %.4e  %.4e" % (t, y[0], y[1], y[2])
+    print("%.4e  %.4e  %.4e  %.4e" % (t, y[0], y[1], y[2]))
     t *= 10
 
-print
-print solver.stat()
+print()
+print(solver.stat())

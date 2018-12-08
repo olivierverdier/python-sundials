@@ -55,7 +55,7 @@ x1_max = 1.0
 x2_min = 1.5
 x2_max = 2. * pi
     
-def eval_f(u, ret = array('d', range(NEQ))):
+def eval_f(u, ret = array('d', list(range(NEQ)))):
     x1, x2 = u[0], u[1]
     l1 = u[2]
     L1 = u[3]
@@ -99,10 +99,10 @@ solver = KINSOLSolver(F = eval_f, x0 = XINIT, cstr = CONSTR,
 try:
     solver.solve()
 except:
-    print 'error ', sys.exc_value 
+    print(('error ', sys.exc_info()[1])) 
     
-print 'solution x = ', solver.x
-print 
-print 'expected x = (0.29945, 2.83693)'
-print
-print solver.stat()
+print('solution x = {}'.format(solver.x))
+print('')
+print('expected x = (0.29945, 2.83693)')
+print('')
+print((solver.stat()))

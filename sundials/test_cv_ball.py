@@ -38,7 +38,7 @@ while True:
         tres.append(t)
         hres.append(y[1])
             
-    except CVodeRootException, info:
+    except CVodeRootException as info:
         if abs(info.y[0]) < 0.01:
             solver.SW[0] = True
             

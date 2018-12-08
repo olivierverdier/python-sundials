@@ -10,3 +10,8 @@ Mr. Jon Olav Vik.
 
 The CVODE and IDA solvers support root finding and the solver throws an exception
 on finding a root.
+
+**Compatibility**
+ * Python 2.7/3.4+
+
+
